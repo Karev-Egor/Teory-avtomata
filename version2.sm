@@ -1,0 +1,56 @@
+// -*- tab-width: 4; -*-
+
+%start Map1::TargetName_1
+%class AppClass
+
+%map Map1
+%%
+// State		Transition		                                End State		Action(s)
+TargetName_1 {
+				Letter(letter:string)	                        TargetName_2    {AddToName(letter); counterInc();}
+				Dot(letter:string)                              TargetName_2    {AddToName(letter); counterInc();}
+				UnderLine(letter:string)                        TargetName_2    {AddToName(letter); counterInc();}
+}
+
+TargetName_2 {
+				Letter(letter:string)			                nil 			{AddToName(letter); counterInc();}
+				Digit(letter:string)                            nil             {AddToName(letter); counterInc();}
+				Dot(letter:string)                              nil             {AddToName(letter); counterInc();}
+				UnderLine(letter:string)                        nil             {AddToName(letter); counterInc();}
+                Colom[ctxt.GetNonFirstSymbol()]                 TN_In_List_1    {SetTargetName();}
+}
+
+TN_In_List_1 {
+				Letter(letter:string)	                        TN_In_List_2    {AddToName(letter); counterInc();}
+				Dot(letter:string)                              TN_In_List_2    {AddToName(letter); counterInc();}
+				UnderLine(letter:string)                        TN_In_List_2    {AddToName(letter); counterInc();}
+                Space[ctxt.Zero()]                              nil             {}
+                EOS[ctxt.NonZero()]                                             OK              {AddToTNList(); Acceptable();}
+}
+
+TN_In_List_2 {
+				Letter(letter:string)			                nil 			{AddToName(letter);counterInc();}
+				Digit(letter:string)                            nil             {AddToName(letter);counterInc();}
+				Dot(letter:string)                              nil             {AddToName(letter); counterInc();}
+				UnderLine(letter:string)                        nil             {AddToName(letter); counterInc();}
+                Space                                           TN_In_List_1    {AddToTNList();}
+                EOS                                             OK              {AddToTNList(); Acceptable();}
+}
+
+OK {}
+
+Error {}
+
+Default {
+				Letter(letter:string)   		                Error      		{Unacceptable();}
+				Digit(letter:string)   			                Error 			{Unacceptable();}
+				Colom			                                Error			{Unacceptable();}
+				Dot(letter:string)                              Error           {Unacceptable();}
+				UnderLine(letter:string)                        Error           {Unacceptable();}
+			    Unknown                                         Error           {Unacceptable();}
+			    EOS                                             Error           {Unacceptable();}
+                Space                                           Error           {Unacceptable();}
+			    TargetName_1                                    TargetName_1    {Clear();}
+}
+
+%%
